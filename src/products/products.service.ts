@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 
 import { Product, ProductDocument } from './schemas/product.schema';
 
+import { CreateProductDto } from './dto/create-product.dto';
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -11,7 +13,7 @@ export class ProductsService {
     private productModel: Model<ProductDocument>,
   ) {}
 
-  async create(createProductDto: any) {
+  async create(createProductDto: CreateProductDto) {
     return await this.productModel.create(createProductDto);
   }
 
