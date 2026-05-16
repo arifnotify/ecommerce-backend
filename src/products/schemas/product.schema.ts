@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Types } from 'mongoose';
+import { Category } from 'src/categories/schemas/category.schema';
 
 export type ProductDocument = HydratedDocument<Product>;
 
@@ -7,14 +9,10 @@ export type ProductDocument = HydratedDocument<Product>;
   timestamps: true,
 })
 export class Product {
-  @Prop({
-    required: true,
-  })
+  @Prop({ required: true })
   name: string;
 
-  @Prop({
-    required: true,
-  })
+  @Prop({ required: true })
   price: number;
 
   @Prop()
@@ -23,13 +21,15 @@ export class Product {
   @Prop()
   image: string;
 
-  @Prop({
-    default: 0,
-  })
+  @Prop({ default: 0 })
   stock: number;
 
-  @Prop()
-  category: string;
+  @Prop({
+    type: Types.ObjectId,
+    ref: Category.name,
+    required: true,
+  })
+  category: Types.ObjectId;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
