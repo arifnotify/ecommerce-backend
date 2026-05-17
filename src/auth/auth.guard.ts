@@ -20,16 +20,10 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('No token found');
     }
 
-    if (!authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Invalid token format');
-    }
-
     const token = authHeader.split(' ')[1];
 
     try {
-      const decoded = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
-      });
+      const decoded = this.jwtService.verify(token);
 
       request.user = decoded;
 
