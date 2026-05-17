@@ -40,10 +40,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const token = this.jwtService.sign({
-      id: user._id,
-      role: user.role,
-    });
+    const token = this.jwtService.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '7d',
+      },
+    );
 
     return {
       access_token: token,
