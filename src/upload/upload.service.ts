@@ -3,7 +3,7 @@ import cloudinary from '../config/cloudinary.config';
 
 @Injectable()
 export class UploadService {
-  async uploadImage(file: Express.Multer.File) {
+  async uploadImage(file: any) {
     const result = await cloudinary.uploader.upload(file.path);
 
     return {

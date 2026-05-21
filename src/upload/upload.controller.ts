@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
-
 import { UploadService } from './upload.service';
 
 @Controller('upload')
@@ -15,7 +14,7 @@ export class UploadController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  upload(@UploadedFile() file: Express.Multer.File) {
+  upload(@UploadedFile() file: any) {
     return this.uploadService.uploadImage(file);
   }
 }
