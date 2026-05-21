@@ -3,6 +3,7 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -14,7 +15,11 @@ export class UploadController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  upload(@UploadedFile() file: any) {
+  async upload(@UploadedFile() file: any) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+
     return this.uploadService.uploadImage(file);
   }
 }
