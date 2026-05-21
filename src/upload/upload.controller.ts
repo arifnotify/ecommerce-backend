@@ -17,8 +17,6 @@ export class UploadController {
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async upload(@UploadedFile() file: any) {
-    console.log('UPLOADED FILE:', file);
-
     if (!file) {
       throw new BadRequestException('File is required');
     }
