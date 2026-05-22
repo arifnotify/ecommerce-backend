@@ -6,7 +6,6 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 
 import { User, UserSchema } from '../users/schemas/user.schema';
-import { AuthGuard } from './auth.guard';
 
 @Module({
   imports: [
@@ -19,6 +18,5 @@ import { AuthGuard } from './auth.guard';
   ],
   controllers: [AuthController],
   providers: [AuthService],
-  exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}
