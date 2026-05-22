@@ -16,25 +16,23 @@ import { AuthGuard } from '../auth/auth.guard';
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
-  // Create Order
+  // Create Order (Protected)
   @UseGuards(AuthGuard)
   @Post()
-  async create(@Req() req: any, @Body() body: any) {
-    return await this.ordersService.create(req.user.id, body);
+  create(@Req() req: any, @Body() body: any) {
+    return this.ordersService.create(req.user.id, body);
   }
 
-  // Show Only Orders Data
+  // Get All Orders (Public)
   @Get()
-  async findAll() {
-    const orders = await this.ordersService.findAll();
-
-    return orders;
+  findAll() {
+    return this.ordersService.findAll();
   }
 
-  // Update Order Status
+  // Update Order Status (Protected)
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async updateStatus(@Param('id') id: string, @Body() body: any) {
-    return await this.ordersService.updateStatus(id, body.status);
+  updateStatus(@Param('id') id: string, @Body() body: any) {
+    return this.ordersService.updateStatus(id, body.status);
   }
 }
