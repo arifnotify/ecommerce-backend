@@ -1,17 +1,25 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { AuthGuard } from '@nestjs/passport';
-import { UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 
+import { OrdersService } from './orders.service';
+import { AuthGuard } from '../auth/auth.guard';
+
+@UseGuards(AuthGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
-  @UseGuards(AuthGuard('jwt'))
   @Post()
   create(@Req() req: any, @Body() body: any) {
-    console.log(req.user);
-    return this.ordersService.create(req.user.userId, body);
+    return this.ordersService.create(req.user.id, body);
   }
 
   @Get()
