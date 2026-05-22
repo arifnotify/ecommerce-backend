@@ -1,3 +1,5 @@
+// src/orders/orders.service.ts
+
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -20,10 +22,18 @@ export class OrdersService {
   }
 
   async findAll() {
-    return this.orderModel.find().populate('user');
+    return this.orderModel.find().populate('user').sort({ createdAt: -1 });
+  }
+
+  async findByUser(userId: string) {
+    return this.orderModel.find({ user: userId });
   }
 
   async updateStatus(id: string, status: string) {
     return this.orderModel.findByIdAndUpdate(id, { status }, { new: true });
+  }
+
+  async findOne(id: string) {
+    return this.orderModel.findById(id).populate('user');
   }
 }

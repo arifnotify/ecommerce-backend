@@ -1,3 +1,5 @@
+// src/orders/schemas/order.schema.ts
+
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
@@ -7,7 +9,7 @@ export type OrderDocument = HydratedDocument<Order>;
   timestamps: true,
 })
 export class Order {
-  @Prop({ type: Types.ObjectId, ref: 'User' })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   user: Types.ObjectId;
 
   @Prop([
@@ -20,15 +22,13 @@ export class Order {
   ])
   items: any[];
 
-  @Prop()
+  @Prop({ required: true })
   totalAmount: number;
 
-  @Prop({
-    default: 'pending',
-  })
+  @Prop({ default: 'pending' })
   status: string;
 
-  @Prop()
+  @Prop({ required: true })
   address: string;
 }
 
