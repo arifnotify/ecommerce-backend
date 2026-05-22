@@ -8,9 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-
 import { AuthGuard } from '@nestjs/passport';
-
 import { OrdersService } from './orders.service';
 
 @Controller('orders')
@@ -19,11 +17,19 @@ export class OrdersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Req() req: any, @Body() body: any) {
-    console.log('USER => ', req.user);
-    console.log('BODY => ', body);
+  async create(@Req() req: any, @Body() body: any) {
+    try {
+      console.log('USER =>', req.user);
+      console.log('BODY =>', body);
 
-    return this.ordersService.create(req.user.id, body);
+      return await this.ordersService.create(req.user.id, body);
+    } catch (error) {
+      console.log(error);
+
+      return {
+        error: error.message,
+      };
+    }
   }
 
   @Get()
