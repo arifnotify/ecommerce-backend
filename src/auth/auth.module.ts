@@ -18,5 +18,7 @@ import { User, UserSchema } from '../users/schemas/user.schema';
   ],
   controllers: [AuthController],
   providers: [AuthService],
+  // 🔥 এটা যোগ করো
+  exports: [JwtModule],
 })
 export class AuthModule {}
