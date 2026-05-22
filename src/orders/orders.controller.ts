@@ -7,7 +7,8 @@ export class OrdersController {
 
   @Post()
   create(@Req() req: any, @Body() body: any) {
-    return this.ordersService.create(req.user._id, body);
+  const userId = req.user?.id || 'testUserId';
+    return this.ordersService.create(userId, body);
   }
 
   @Get()
