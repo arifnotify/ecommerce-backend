@@ -10,6 +10,7 @@ export class OrdersController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   create(@Req() req: any, @Body() body: any) {
+    console.log(req.user);
     return this.ordersService.create(req.user.userId, body);
   }
 
