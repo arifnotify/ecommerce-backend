@@ -6,9 +6,9 @@ export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
   @Post()
+  @Post()
   create(@Req() req: any, @Body() body: any) {
-  const userId = req.user?.id || 'testUserId';
-    return this.ordersService.create(userId, body);
+    return this.ordersService.create(req.user.userId, body);
   }
 
   @Get()
