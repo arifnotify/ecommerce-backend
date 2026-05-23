@@ -1,17 +1,21 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { LoginOtpDto } from './dto/login.dto';
+import { VerifyOtpDto } from './dto/register.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  register(@Body() body: any) {
-    return this.authService.register(body);
+  @Post('login/otp')
+  async loginWithOtp(@Body() loginOtpDto: LoginOtpDto) {
+    return this.authService.sendOtp(loginOtpDto.phone);
   }
 
-  @Post('login')
-  login(@Body() body: any) {
-    return this.authService.login(body);
+  @Post('verify-otp')
+  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+    return this.authService.verifyOtp(verifyOtpDto.phone, verifyOtpDto.otp);
   }
 }

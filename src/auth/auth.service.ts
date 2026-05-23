@@ -1,56 +1,49 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-
-import { User, UserDocument } from '../users/schemas/user.schema';
+import { User } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @InjectModel(User.name)
-    private userModel: Model<UserDocument>,
-    private jwtService: JwtService,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  async register(data: any) {
-    const hash = await bcrypt.hash(data.password, 10);
+  async sendOtp(phone: string) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-    const user = await this.userModel.create({
-      ...data,
-      password: hash,
-    });
+    await this.userModel.findOneAndUpdate(
+      { phone },
+      { phone, otp, otpExpiry, isVerified: false },
+      { upsert: true, new: true },
+    );
 
-    return user;
+    // TODO: Integrate real SMS gateway (SslWireless, Banglaphone, etc.)
+    console.log(`📱 OTP for ${phone} is: ${otp}`);
+
+    return { success: true, message: 'OTP sent successfully' };
   }
 
-  async login(data: any) {
-    const user = await this.userModel.findOne({
-      email: data.email,
-    });
+  async verifyOtp(phone: string, otp: string) {
+    const user = await this.userModel.findOne({ phone });
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+    if (
+      !user ||
+      !user.otp ||
+      user.otp !== otp ||
+      new Date() > user.otpExpiry!
+    ) {
+      return { success: false, message: 'Invalid or expired OTP' };
     }
 
-    const isMatch = await bcrypt.compare(data.password, user.password);
-
-    if (!isMatch) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const token = this.jwtService.sign({
-      id: user._id,
-      role: user.role,
-    });
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
 
     return {
-      access_token: token,
-      user: {
-        id: user._id,
-        role: user.role,
-      },
+      success: true,
+      message: 'Login successful',
+      user: { id: user._id, phone: user.phone, name: user.name },
     };
   }
 }
