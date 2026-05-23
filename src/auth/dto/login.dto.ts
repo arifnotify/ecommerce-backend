@@ -1,10 +1,9 @@
-import { IsString, IsNotEmpty, Matches } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString } from 'class-validator';
 
-export class LoginOtpDto {
-  @ApiProperty()
+export class LoginDto {
+  @IsEmail()
+  email: string;
+
   @IsString()
-  @IsNotEmpty()
-  @Matches(/^\+880\d{9}$/, { message: 'Phone number must be +880XXXXXXXXX' })
-  phone: string;
+  password: string;
 }

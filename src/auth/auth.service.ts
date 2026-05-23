@@ -1,49 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from '../users/schemas/user.schema';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+
+import { User, UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
+    private jwtService: JwtService,
+  ) {}
 
-  async sendOtp(phone: string) {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
-    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  async register(data: any) {
+    const hash = await bcrypt.hash(data.password, 10);
 
-    await this.userModel.findOneAndUpdate(
-      { phone },
-      { phone, otp, otpExpiry, isVerified: false },
-      { upsert: true, new: true },
-    );
+    const user = await this.userModel.create({
+      ...data,
+      password: hash,
+    });
 
-    // TODO: Integrate real SMS gateway (SslWireless, Banglaphone, etc.)
-    console.log(`📱 OTP for ${phone} is: ${otp}`);
-
-    return { success: true, message: 'OTP sent successfully' };
+    return user;
   }
 
-  async verifyOtp(phone: string, otp: string) {
-    const user = await this.userModel.findOne({ phone });
+  async login(data: any) {
+    const user = await this.userModel.findOne({
+      email: data.email,
+    });
 
-    if (
-      !user ||
-      !user.otp ||
-      user.otp !== otp ||
-      new Date() > user.otpExpiry!
-    ) {
-      return { success: false, message: 'Invalid or expired OTP' };
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpiry = undefined;
-    await user.save();
+    const isMatch = await bcrypt.compare(data.password, user.password);
+
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const token = this.jwtService.sign({
+      id: user._id,
+      role: user.role,
+    });
 
     return {
-      success: true,
-      message: 'Login successful',
-      user: { id: user._id, phone: user.phone, name: user.name },
+      access_token: token,
+      user: {
+        id: user._id,
+        role: user.role,
+      },
     };
   }
 }
